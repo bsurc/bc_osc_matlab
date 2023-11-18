@@ -4,7 +4,7 @@
 
   ppn = num_cores.blank? ? 28 : num_cores.to_i
 
-  slurm_args = [ “--nodes”, “#{nodes}“, “--ntasks-per-node”, “#{ppn}” ]
+  slurm_args = [ "--nodes", "#{nodes}", "--ntasks-per-node", "#{ppn}" ]
 %>
 ---
 batch_connect:
