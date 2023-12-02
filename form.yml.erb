@@ -9,13 +9,12 @@ cluster:
 form:
   - version
   - num_cores
-  - bc_queue
+  - node_type
   - bc_num_slots
   - bc_num_hours
   - bc_vnc_resolution
   - bc_email_on_started
 attributes:
-  num_cores: 28
   bc_num_slots: 1
   bc_vnc_resolution:
     required: true
@@ -27,7 +26,42 @@ attributes:
       - [
           "R2023b", "matlab/r2023b",
         ]
-      - [ 
-          "R2020a", "matlab/r2020a",           
+      - [
+          "R2020a", "matlab/r2020a",
         ]
-  bc_queue: "ondemand-p100" 
+  node_type:
+    widget: select
+    label: "Node type"
+    help: |
+      - **CPU only** <br>
+        Standard Borah nodes have 48 cores and 186 GB of memory.
+        By selecting a "CPU" session, you can select between 4 and 24 CPU cores.
+      - **GPU enabled** <br>
+        These are HPC nodes with 2 [NVIDIA Tesla P100 GPUs], 28 cores, and
+        251 GB of memory.
+        By selecting a "GPU" session, you will be given 14 cores and 1 GPU.
+        [NVIDIA Tesla P100 GPU]: http://www.nvidia.com/object/tesla-p100.html
+    options:
+      - [
+          "CPU",     "cpu",
+          data-max-num-cores: 24,
+          data-step-num-cores: 4,
+          data-set-num-cores: 4,
+          data-min-num-cores: 4,
+        ]
+      - [
+          "GPU",     "gpu",
+          data-max-num-cores: 14,
+          data-step-num-cores: 7,
+          data-set-num-cores: 14,
+          data-min-num-cores: 7,
+        ]
+  num_cores:
+    widget: "number_field"
+    label: "Number of cores"
+    help: |
+      Number of cores on node type (4 GB per core unless requesting whole
+      node). Leave blank if requesting full node.
+    min: 0
+    max: 14
+    step: 1

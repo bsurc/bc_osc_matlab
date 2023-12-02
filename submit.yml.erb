@@ -2,9 +2,29 @@
   nodes = bc_num_slots.blank? ? 1 : bc_num_slots.to_i
 
 
-  ppn = num_cores.blank? ? 28 : num_cores.to_i
+  cores_lookup = {
+    "cpu" => "24",
+    "gpu" => "14",
+  }
 
-  slurm_args = [ "--nodes", "#{nodes}", "--ntasks-per-node", "#{ppn}" ]
+  max_cores = cores_lookup[node_type]
+  ppn = num_cores.blank? ? max_cores : num_cores.to_i
+
+  case node_type
+  when "gpu"
+    slurm_args = [
+      "--nodes", "#{nodes}",
+      "--ntasks-per-node", "#{ppn}",
+      "--gpus-per-node", "1",
+      "--partition", "ondemand-p100"
+    ]
+  else
+    slurm_args = [
+      "--nodes", "#{nodes}",
+      "--ntasks-per-node", "#{ppn}",
+      "--partition", "ondemand"
+    ]
+  end
 %>
 ---
 batch_connect:
