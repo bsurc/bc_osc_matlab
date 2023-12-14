@@ -30,6 +30,7 @@ attributes:
           "R2020a", "matlab/r2020a",
         ]
   node_type:
+    value: "CPU"
     widget: select
     label: "Node type"
     help: |
@@ -52,7 +53,7 @@ attributes:
       - [
           "GPU",     "gpu",
           data-max-num-cores: 14,
-          data-step-num-cores: 7,
+          data-step-num-cores: 1,
           data-set-num-cores: 14,
           data-min-num-cores: 7,
         ]
@@ -62,6 +63,7 @@ attributes:
     help: |
       Number of cores on node type (4 GB per core unless requesting whole
       node). Leave blank if requesting full node.
-    min: 0
-    max: 14
+    min: 4
+    max: 24
     step: 1
+    value: 4
