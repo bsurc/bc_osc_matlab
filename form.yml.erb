@@ -29,6 +29,8 @@ attributes:
       - [
           "R2020a", "matlab/r2020a",
         ]
+  num_cores:
+    widget: hidden_field
   node_type:
     value: "CPU"
     widget: select
@@ -36,7 +38,7 @@ attributes:
     help: |
       - **CPU only** <br>
         Standard Borah nodes have 48 cores and 186 GB of memory.
-        By selecting a "CPU" session, you can select between 4 and 24 CPU cores.
+        By selecting a "CPU" session, you will be given 4 CPU cores.
       - **GPU enabled** <br>
         These are HPC nodes with 2 [NVIDIA Tesla P100 GPUs], 28 cores, and
         251 GB of memory.
@@ -45,29 +47,13 @@ attributes:
     options:
       - [
           "CPU",     "cpu",
-          data-max-num-cores: 24,
-          data-step-num-cores: 4,
-          data-set-num-cores: 4,
-          data-min-num-cores: 4,
+          data-set-num-cores: 4
         ]
       - [
           "GPU",     "gpu",
-          data-max-num-cores: 14,
-          data-step-num-cores: 1,
-          data-set-num-cores: 14,
-          data-min-num-cores: 7,
+          data-set-num-cores: 14
         ]
   bc_num_hours:
     value: 1
     min: 1
     max: 4
-  num_cores:
-    widget: "number_field"
-    label: "Number of cores"
-    help: |
-      Number of cores on node type (4 GB per core unless requesting whole
-      node). Leave blank if requesting full node.
-    min: 4
-    max: 24
-    step: 1
-    value: 4
