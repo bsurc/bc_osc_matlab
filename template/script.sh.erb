@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 
-<%- gpu = context.node_type.include?("gpu") -%>
+<%- 
+    gpu_queues = ['ondemand-p100', 'cryogars', 'classroomgpu']
+    gpu = gpu_queues.include?(context.custom_queue) 
+-%>
 
 # Clean the environment
 module purge
@@ -38,7 +41,9 @@ module load <%= context.version %>
 module list
 set -x
 <%- if gpu -%>
+echo "Launching MATLAB with vglrun..."
 vglrun matlab -desktop -nosoftwareopengl
 <%- else -%>
+echo "Launching MATLAB..."
 matlab -desktop
 <%- end -%>

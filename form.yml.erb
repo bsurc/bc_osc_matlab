@@ -1,21 +1,41 @@
 <%-
-  groups = OodSupport::User.new.groups.sort_by(&:id).tap { |groups|
-    groups.unshift(groups.delete(OodSupport::Process.group))
-  }.map(&:name).grep(/^P./)
+require 'open3'
+begin
+    oodqueues = ['ondemand', 'ondemand-p100', 'cryogars', 'classroomgpu']
+    # Command to Run
+    script = '/cm/shared/apps/slurm/current/bin/sinfo -h --format="%P"'
+    # Create a partitions array to dynamically populate the queues associated
+    # with the user
+    partitions = []
+    # Store the output, error, status
+    output, status = Open3.capture2('bash', stdin_data: script)
+    # puts status
+    if status.success?
+        # Add it to the custom_envs array by splitting the output at '\n'.
+        output.split("\n").each do |queue|
+            if oodqueues.include?(queue)
+                queue = queue.gsub("*", "")
+                partitions.push(queue)
+            end
+        end
+        puts partitions
+    else
+        partition_error = "Error"
+    end
+rescue => e
+    partition_error = e.message.strip
+end
 -%>
 ---
 cluster:
   - "borah"
 form:
   - version
-  - num_cores
-  - node_type
-  - bc_num_slots
+  - custom_queue
   - bc_num_hours
   - bc_vnc_resolution
   - bc_email_on_started
 attributes:
-  bc_num_slots: 1
   bc_vnc_resolution:
     required: true
   version:
@@ -29,30 +49,43 @@ attributes:
       - [
           "R2020a", "matlab/r2020a",
         ]
-  num_cores:
-    widget: hidden_field
-  node_type:
-    value: "CPU"
+  custom_queue:
+    label: Partition
     widget: select
-    label: "Node type"
     help: |
-      - **CPU only** <br>
-        Standard Borah nodes have 48 cores and 186 GB of memory.
-        By selecting a "CPU" session, you will be given 4 CPU cores.
-      - **GPU enabled** <br>
+    <%- if partitions.include?("classroomgpu")-%>
+      - **classroomgpu** <br>
         These are HPC nodes with 2 [NVIDIA Tesla P100 GPUs], 28 cores, and
         251 GB of memory.
-        By selecting a "GPU" session, you will be given 14 cores and 1 GPU.
-        [NVIDIA Tesla P100 GPU]: http://www.nvidia.com/object/tesla-p100.html
+        By selecting the "classroomgpu" partition, you will be given 14 cores
+        and 1 GPU.
+        [NVIDIA Tesla P100 GPUs]: http://www.nvidia.com/object/tesla-p100.html
+    <%- end -%>
+    <%- if partitions.include?("cryogars")-%>
+      - **cryogars** <br>
+        This node has 2 [NVIDIA A30 GPUs], 64 cores, and 1 TB of memory.
+        By selecting the "cryogars" partition, you will be given 32 cores
+        and 1 GPU.
+        [NVIDIA A30 GPUs]: https://www.nvidia.com/a30
+    <%- end -%>
+      - **ondemand** <br>
+        Standard Borah nodes have 48 cores and 186 GB of memory.
+        By selecting the "ondemand" partition, you will be given 4 CPU cores.
+      - **ondemand-p100** <br>
+        These are HPC nodes with 2 [NVIDIA Tesla P100 GPUs], 28 cores, and
+        251 GB of memory.
+        By selecting the "ondemand-p100" partition, you will be given 14 cores
+        and 1 GPU.
+        [NVIDIA Tesla P100 GPUs]: http://www.nvidia.com/object/tesla-p100.html
+    <%- if partition_error || partitions.blank?-%>
+      <div class="text-danger">Error while fetching Partition. Please contact
+      support!</div>
+    <%- else -%>
     options:
-      - [
-          "CPU",     "cpu",
-          data-set-num-cores: 4
-        ]
-      - [
-          "GPU",     "gpu",
-          data-set-num-cores: 14
-        ]
+    <%- partitions.each do |q| -%>
+      - [ "<%= q %>", "<%= q %>" ]
+    <%- end -%>
+    <%- end -%>
   bc_num_hours:
     value: 1
     min: 1

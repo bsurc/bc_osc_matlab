@@ -1,27 +1,32 @@
 <%-
   nodes = bc_num_slots.blank? ? 1 : bc_num_slots.to_i
 
-
-  cores_lookup = {
-    "cpu" => "24",
-    "gpu" => "14",
-  }
-
-  max_cores = cores_lookup[node_type]
-  ppn = num_cores.blank? ? max_cores : num_cores.to_i
-
-  case node_type
-  when "gpu"
+  case custom_queue
+  when "ondemand-p100"
     slurm_args = [
       "--nodes", "#{nodes}",
-      "--ntasks-per-node", "#{ppn}",
+      "--ntasks-per-node", "14",
       "--gpus-per-node", "1",
       "--partition", "ondemand-p100"
+    ]
+  when "classroomgpu"
+    slurm_args = [
+      "--nodes", "#{nodes}",
+      "--ntasks-per-node", "14",
+      "--gpus-per-node", "1",
+      "--partition", "classroomgpu"
+    ]
+  when "cryogars"
+    slurm_args = [
+      "--nodes", "#{nodes}",
+      "--ntasks-per-node", "32",
+      "--gpus-per-node", "1",
+      "--partition", "cryogars"
     ]
   else
     slurm_args = [
       "--nodes", "#{nodes}",
-      "--ntasks-per-node", "#{ppn}",
+      "--ntasks-per-node", "4",
       "--partition", "ondemand"
     ]
   end
